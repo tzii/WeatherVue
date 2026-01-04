@@ -10,8 +10,33 @@ const locationStore = useLocationStore()
 const { updateLocation, coords, loading: geoLoading } = useGeolocation()
 
 const query = ref('')
+const results = ref<City[]>([])
+const isSearching = ref(false)
+const showResults = ref(false)
 
-// ... existing code ...
+const performSearch = async (val: string) => {
+  if (val.length < 2) {
+    results.value = []
+    isSearching.value = false
+    return
+  }
+
+  isSearching.value = true
+  try {
+    results.value = await searchCities(val)
+  } catch (error) {
+    console.error('Search failed:', error)
+  } finally {
+    isSearching.value = false
+  }
+}
+
+const debouncedSearch = debounce(performSearch, 300)
+
+watch(query, (newVal) => {
+  showResults.value = true
+  debouncedSearch(newVal)
+})
 
 const selectCity = (city: City) => {
   locationStore.setCurrentCity(city)
