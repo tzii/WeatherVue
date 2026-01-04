@@ -1,0 +1,168 @@
+/* CSS Custom Properties - Design Tokens */
+
+:root {
+  /* Durations */
+  --duration-instant: 0ms;
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  --duration-slower: 700ms;
+  
+  /* Easings */
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 0.2);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  
+  /* Light Theme (default) */
+  --bg-body: #ffffff;
+  --bg-card: #f4f4f5;
+  --bg-card-hover: #e4e4e7;
+  --bg-drawer: #fafafa;
+  --bg-glass: rgba(255, 255, 255, 0.7);
+  
+  --text-primary: #000000;
+  --text-secondary: #52525b;
+  --text-muted: #71717a;
+  --text-inverse: #ffffff;
+  
+  --border-default: #e4e4e7;
+  --border-strong: #a1a1aa;
+  --border-glass: rgba(255, 255, 255, 0.2);
+  
+  --accent: #dc2626;
+  --accent-light: #ef4444;
+  --accent-dark: #b91c1c;
+  
+  /* Weather-reactive (defaults) */
+  --sky-start: #87CEEB;
+  --sky-end: #1E90FF;
+  --atmosphere: rgba(255, 215, 0, 0.1);
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+  
+  /* Z-index scale */
+  --z-below: -1;
+  --z-base: 0;
+  --z-above: 1;
+  --z-header: 10;
+  --z-dropdown: 20;
+  --z-drawer: 30;
+  --z-modal: 40;
+  --z-toast: 50;
+  --z-splash: 100;
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  --bg-body: #000000;
+  --bg-card: #18181b;
+  --bg-card-hover: #27272a;
+  --bg-drawer: #09090b;
+  --bg-glass: rgba(0, 0, 0, 0.7);
+  
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --text-inverse: #000000;
+  
+  --border-default: #27272a;
+  --border-strong: #3f3f46;
+  --border-glass: rgba(255, 255, 255, 0.1);
+  
+  /* Weather-reactive (night defaults) */
+  --sky-start: #0f0f23;
+  --sky-end: #1a1a2e;
+  --atmosphere: rgba(100, 100, 200, 0.1);
+}
+
+/* Terminal Theme (High Contrast Accessibility) */
+[data-theme="terminal"] {
+  --bg-body: #0a0a0a;
+  --bg-card: #0f0f0f;
+  --bg-card-hover: #1a1a1a;
+  --bg-drawer: #050505;
+  --bg-glass: rgba(0, 255, 0, 0.1);
+  
+  --text-primary: #00ff00;
+  --text-secondary: #00cc00;
+  --text-muted: #009900;
+  --text-inverse: #000000;
+  
+  --border-default: #003300;
+  --border-strong: #00ff00;
+  --border-glass: rgba(0, 255, 0, 0.2);
+  
+  --accent: #00ff00;
+  --accent-light: #33ff33;
+  --accent-dark: #00cc00;
+}
+
+/* Terminal theme overrides */
+[data-theme="terminal"] * {
+  font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="terminal"]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.1) 0px,
+    rgba(0, 0, 0, 0.1) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Weather-reactive color palettes */
+:root[data-weather="clear"][data-time="day"] {
+  --sky-start: #87CEEB;
+  --sky-end: #1E90FF;
+  --atmosphere: rgba(255, 215, 0, 0.1);
+}
+
+:root[data-weather="clear"][data-time="night"] {
+  --sky-start: #0f0f23;
+  --sky-end: #1a1a2e;
+  --atmosphere: rgba(100, 100, 200, 0.1);
+}
+
+:root[data-weather="cloudy"] {
+  --sky-start: #94a3b8;
+  --sky-end: #64748b;
+  --atmosphere: rgba(150, 150, 150, 0.2);
+}
+
+:root[data-weather="rain"] {
+  --sky-start: #4a5568;
+  --sky-end: #2d3748;
+  --atmosphere: rgba(100, 150, 200, 0.2);
+}
+
+:root[data-weather="storm"] {
+  --sky-start: #1a202c;
+  --sky-end: #0d1117;
+  --atmosphere: rgba(80, 50, 120, 0.3);
+}
+
+:root[data-weather="snow"] {
+  --sky-start: #e2e8f0;
+  --sky-end: #cbd5e0;
+  --atmosphere: rgba(220, 230, 240, 0.3);
+}
+
+:root[data-weather="fog"] {
+  --sky-start: #d1d5db;
+  --sky-end: #9ca3af;
+  --atmosphere: rgba(180, 180, 180, 0.5);
+}
