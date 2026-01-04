@@ -59,7 +59,7 @@
 }
 
 /* Dark Theme */
-[data-theme="dark"] {
+:root[data-theme="dark"] {
   --bg-body: #000000;
   --bg-card: #18181b;
   --bg-card-hover: #27272a;
@@ -82,7 +82,7 @@
 }
 
 /* Terminal Theme (High Contrast Accessibility) */
-[data-theme="terminal"] {
+:root[data-theme="terminal"] {
   --bg-body: #0a0a0a;
   --bg-card: #0f0f0f;
   --bg-card-hover: #1a1a1a;
