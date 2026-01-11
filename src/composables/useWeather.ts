@@ -8,6 +8,10 @@ import type { Location, WeatherData } from '@/types'
 export const useWeather = (location: Ref<Location | null>) => {
   const store = useWeatherStore()
   const lastFetchTime = ref<number>(0)
+  const retryCount = ref(0)
+  const isRetrying = ref(false)
+  const MAX_RETRIES = 3
+  const BASE_DELAY = 1000
 
   const refreshWeather = async (force = false) => {
     if (!location.value) return
@@ -30,10 +34,31 @@ export const useWeather = (location: Ref<Location | null>) => {
       store.setWeatherData(data)
       cache.set(cacheKey, data, CACHE_TTL.weather)
       lastFetchTime.value = Date.now()
+      retryCount.value = 0
     } catch (err: any) {
       store.setError(err)
     } finally {
       store.setLoading(false)
+    }
+  }
+
+  const retryWithBackoff = async () => {
+    if (!location.value || retryCount.value >= MAX_RETRIES) return
+    
+    isRetrying.value = true
+    const delay = BASE_DELAY * Math.pow(2, retryCount.value)
+    
+    await new Promise(resolve => setTimeout(resolve, delay))
+    retryCount.value++
+    
+    try {
+      await refreshWeather(true)
+      isRetrying.value = false
+    } catch {
+      isRetrying.value = false
+      if (retryCount.value < MAX_RETRIES) {
+        await retryWithBackoff()
+      }
     }
   }
 
@@ -74,6 +99,9 @@ export const useWeather = (location: Ref<Location | null>) => {
 
   return {
     refreshWeather,
-    getSwrWeather
+    getSwrWeather,
+    retryWithBackoff,
+    isRetrying,
+    retryCount
   }
 }

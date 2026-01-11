@@ -63,11 +63,17 @@ export class ParticleSystem {
   }
 
   update(deltaTime: number) {
-    this.material.uniforms.time.value += deltaTime
+    const timeUniform = this.material.uniforms['time']
+    if (timeUniform) {
+      timeUniform.value += deltaTime
+    }
   }
 
   setColor(color: number) {
-    this.material.uniforms.color.value.setHex(color)
+    const colorUniform = this.material.uniforms['color']
+    if (colorUniform) {
+      colorUniform.value.setHex(color)
+    }
   }
 
   setSpeed(_speed: number) {

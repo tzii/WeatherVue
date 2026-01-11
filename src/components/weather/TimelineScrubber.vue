@@ -92,12 +92,18 @@ const handleMouseDown = (e: MouseEvent) => {
 
 const handleTouchStart = (e: TouchEvent) => {
   isDragging.value = true
-  updatePosition(e.touches[0].clientX)
+  const touch = e.touches[0]
+  if (touch) {
+    updatePosition(touch.clientX)
+  }
 }
 
 const handleTouchMove = (e: TouchEvent) => {
   if (isDragging.value) {
-    updatePosition(e.touches[0].clientX)
+    const touch = e.touches[0]
+    if (touch) {
+      updatePosition(touch.clientX)
+    }
   }
 }
 

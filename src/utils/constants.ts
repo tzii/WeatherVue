@@ -18,7 +18,8 @@ export const CURRENT_PARAMS = [
   'pressure_msl',
   'wind_speed_10m',
   'wind_direction_10m',
-  'uv_index'
+  'uv_index',
+  'visibility'
 ] as const
 
 export const HOURLY_PARAMS = [

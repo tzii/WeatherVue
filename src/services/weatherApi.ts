@@ -21,6 +21,7 @@ interface OpenMeteoCurrentResponse {
   wind_speed_10m: number
   wind_direction_10m: number
   uv_index: number
+  visibility: number
 }
 
 interface OpenMeteoHourlyResponse {
@@ -89,13 +90,18 @@ export const fetchWeatherData = async (
 }
 
 const transformWeatherData = (data: OpenMeteoResponse): WeatherData => {
-  const current = transformCurrentWeather(data.current!)
-  const hourly = transformHourlyForecast(data.hourly!)
-  const daily = transformDailyForecast(data.daily!)
+  if (!data.current || !data.hourly || !data.daily) {
+    throw new Error('Invalid weather data response')
+  }
+  
+  const current = transformCurrentWeather(data.current)
+  const hourly = transformHourlyForecast(data.hourly)
+  const daily = transformDailyForecast(data.daily)
   
   // Add precipitation probability from first hour of forecast
-  if (hourly.length > 0) {
-    current.precipitationProbability = hourly[0].precipitationProbability
+  const firstHour = hourly[0]
+  if (firstHour) {
+    current.precipitationProbability = firstHour.precipitationProbability
   }
   
   return {
@@ -121,36 +127,37 @@ const transformCurrentWeather = (data: OpenMeteoCurrentResponse): CurrentWeather
     windSpeed: data.wind_speed_10m,
     windDirection: data.wind_direction_10m,
     uvIndex: data.uv_index,
-    isDay: data.is_day === 1
+    isDay: data.is_day === 1,
+    visibility: data.visibility / 1000
   }
 }
 
 const transformHourlyForecast = (data: OpenMeteoHourlyResponse): HourlyForecast[] => {
   return data.time.map((time, i) => ({
     time,
-    temperature: data.temperature_2m[i],
-    humidity: data.relative_humidity_2m[i],
-    precipitationProbability: data.precipitation_probability[i],
-    precipitation: data.precipitation[i],
-    weatherCode: data.weather_code[i] as WeatherCode,
-    windSpeed: data.wind_speed_10m[i],
-    windDirection: data.wind_direction_10m[i],
-    uvIndex: data.uv_index[i],
-    isDay: data.is_day[i] === 1
+    temperature: data.temperature_2m[i] ?? 0,
+    humidity: data.relative_humidity_2m[i] ?? 0,
+    precipitationProbability: data.precipitation_probability[i] ?? 0,
+    precipitation: data.precipitation[i] ?? 0,
+    weatherCode: (data.weather_code[i] ?? 0) as WeatherCode,
+    windSpeed: data.wind_speed_10m[i] ?? 0,
+    windDirection: data.wind_direction_10m[i] ?? 0,
+    uvIndex: data.uv_index[i] ?? 0,
+    isDay: (data.is_day[i] ?? 1) === 1
   }))
 }
 
 const transformDailyForecast = (data: OpenMeteoDailyResponse): DailyForecast[] => {
   return data.time.map((date, i) => ({
     date,
-    weatherCode: data.weather_code[i] as WeatherCode,
-    temperatureMax: data.temperature_2m_max[i],
-    temperatureMin: data.temperature_2m_min[i],
-    sunrise: data.sunrise[i],
-    sunset: data.sunset[i],
-    uvIndexMax: data.uv_index_max[i],
-    precipitationProbabilityMax: data.precipitation_probability_max[i],
-    precipitationSum: data.precipitation_sum[i],
-    windSpeedMax: data.wind_speed_10m_max[i]
+    weatherCode: (data.weather_code[i] ?? 0) as WeatherCode,
+    temperatureMax: data.temperature_2m_max[i] ?? 0,
+    temperatureMin: data.temperature_2m_min[i] ?? 0,
+    sunrise: data.sunrise[i] ?? '',
+    sunset: data.sunset[i] ?? '',
+    uvIndexMax: data.uv_index_max[i] ?? 0,
+    precipitationProbabilityMax: data.precipitation_probability_max[i] ?? 0,
+    precipitationSum: data.precipitation_sum[i] ?? 0,
+    windSpeedMax: data.wind_speed_10m_max[i] ?? 0
   }))
 }

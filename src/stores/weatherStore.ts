@@ -69,8 +69,13 @@ export const useWeatherStore = defineStore('weather', () => {
     if (hourly.value.length === 0) return 0
     
     const now = new Date()
-    const firstHour = new Date(hourly.value[0].time)
-    const lastHour = new Date(hourly.value[hourly.value.length - 1].time)
+    const firstHourData = hourly.value[0]
+    const lastHourData = hourly.value[hourly.value.length - 1]
+    
+    if (!firstHourData || !lastHourData) return 0
+    
+    const firstHour = new Date(firstHourData.time)
+    const lastHour = new Date(lastHourData.time)
     
     const totalMs = lastHour.getTime() - firstHour.getTime()
     const elapsedMs = now.getTime() - firstHour.getTime()

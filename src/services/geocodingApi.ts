@@ -33,17 +33,25 @@ export const searchCities = async (
 }
 
 const transformGeocodingResult = (result: GeocodingResult): City => {
-  return {
+  const city: City = {
     id: `${result.id}`,
     name: result.name,
     country: result.country,
     countryCode: result.country_code,
     latitude: result.latitude,
     longitude: result.longitude,
-    timezone: result.timezone,
-    population: result.population,
-    admin1: result.admin1
+    timezone: result.timezone
   }
+  
+  if (result.population !== undefined) {
+    city.population = result.population
+  }
+  
+  if (result.admin1 !== undefined) {
+    city.admin1 = result.admin1
+  }
+  
+  return city
 }
 
 // Reverse geocoding (coordinates to city)

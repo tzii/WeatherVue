@@ -14,6 +14,7 @@ export interface CurrentWeather {
   windSpeed: number
   windDirection: number
   uvIndex: number
+  visibility: number
   isDay: boolean
 }
 

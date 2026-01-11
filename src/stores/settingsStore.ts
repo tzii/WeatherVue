@@ -53,7 +53,10 @@ export const useSettingsStore = defineStore('settings', () => {
     const themes: Theme[] = ['light', 'dark', 'system', 'terminal']
     const currentIndex = themes.indexOf(theme.value)
     const nextIndex = (currentIndex + 1) % themes.length
-    setTheme(themes[nextIndex])
+    const nextTheme = themes[nextIndex]
+    if (nextTheme) {
+      setTheme(nextTheme)
+    }
   }
   
   const cycleTheme = () => {

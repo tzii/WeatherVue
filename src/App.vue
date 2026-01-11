@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { onMounted, watch, computed, ref } from "vue";
+import { onMounted, watch, computed, ref, defineAsyncComponent } from "vue";
 import { useSettingsStore, useLocationStore, useWeatherStore } from "@/stores";
 import { useTheme } from "@/composables/useTheme";
 import { useWeather } from "@/composables/useWeather";
+import { useKeyboardShortcuts } from "@/composables/useKeyboardShortcuts";
 import gsap from "gsap";
 
 // Components
 import SplashScreen from "@/components/layout/SplashScreen.vue";
 import AppHeader from "@/components/layout/AppHeader.vue";
 import SettingsDrawer from "@/components/layout/SettingsDrawer.vue";
-import WeatherCanvas from "@/components/canvas/WeatherCanvas.vue";
 import CurrentWeather from "@/components/weather/CurrentWeather.vue";
 import HourlyForecast from "@/components/weather/HourlyForecast.vue";
 import WeeklyForecast from "@/components/weather/WeeklyForecast.vue";
@@ -21,6 +21,13 @@ import UVIndexGauge from "@/components/weather/UVIndexGauge.vue";
 import PrecipitationBar from "@/components/weather/PrecipitationBar.vue";
 import CitySearch from "@/components/search/CitySearch.vue";
 import WeatherCard from "@/components/ui/WeatherCard.vue";
+import ErrorDisplay from "@/components/ui/ErrorDisplay.vue";
+import OfflineIndicator from "@/components/ui/OfflineIndicator.vue";
+
+// Lazy-load heavy Three.js canvas for better performance
+const WeatherCanvas = defineAsyncComponent(() =>
+  import("@/components/canvas/WeatherCanvas.vue")
+);
 
 // Lucide Icons
 import { Droplets, Cloud, Eye, Gauge } from "lucide-vue-next";
@@ -32,7 +39,15 @@ const weatherStore = useWeatherStore();
 
 // Composables
 useTheme();
-useWeather(computed(() => locationStore.coordinates));
+useKeyboardShortcuts();
+const { retryWithBackoff, isRetrying } = useWeather(computed(() => locationStore.coordinates));
+
+// Online status
+const isOnline = ref(navigator.onLine);
+onMounted(() => {
+  window.addEventListener('online', () => isOnline.value = true);
+  window.addEventListener('offline', () => isOnline.value = false);
+});
 
 // Computed
 const showSplash = computed(
@@ -108,6 +123,16 @@ onMounted(() => {
           >
             Atmospheric Intelligence for the Modern Age
           </p>
+
+          <!-- Error Display -->
+          <ErrorDisplay
+            v-if="weatherStore.error"
+            :error="weatherStore.error"
+            :is-offline="!isOnline"
+            :retrying="isRetrying"
+            class="mt-8 max-w-md"
+            @retry="retryWithBackoff"
+          />
         </div>
 
         <template v-else>
@@ -208,7 +233,7 @@ onMounted(() => {
             <div class="lg:col-span-3">
               <WeatherCard
                 title="Visibility"
-                value="10"
+                :value="Math.round(weatherStore.current?.visibility || 10)"
                 unit="km"
                 :icon="Eye"
                 description="Distance you can see clearly"
@@ -231,6 +256,9 @@ onMounted(() => {
 
     <!-- Settings Drawer -->
     <SettingsDrawer />
+
+    <!-- Offline Indicator -->
+    <OfflineIndicator />
 
     <!-- Screen reader announcements -->
     <div
@@ -260,5 +288,25 @@ onMounted(() => {
 
 [data-theme="dark"] .shadow-glass {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  z-index: 100;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 1rem;
+  outline: 2px solid white;
+  outline-offset: 2px;
 }
 </style>

@@ -139,7 +139,10 @@ export const useLocationStore = defineStore('location', () => {
         }
       } catch {
         // Use default
-        setCurrentCity(DEFAULT_CITIES[0])
+        const defaultCity = DEFAULT_CITIES[0]
+        if (defaultCity) {
+          setCurrentCity(defaultCity)
+        }
       }
     }
   }
