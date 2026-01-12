@@ -1,56 +1,97 @@
-# WeatherVue
+# WeatherVue 2.0
 
-WeatherVue is a sleek, modern web application that allows users to fetch and visualize real-time weather data from around the world. It features a clean, minimalist design with dynamic themes and provides on-the-fly translation of weather summaries into multiple languages using the Azure Translator service.
+<div align="center">
+  <h3>Atmospheric Intelligence for the Modern Age</h3>
+  <p>A next-generation weather dashboard featuring glassmorphism, WebGL visualizations, and award-winning UI/UX.</p>
+</div>
 
- 
+![WeatherVue Preview](https://github.com/tzii/WeatherVue/raw/feature/award-winning-redesign/docs/preview.png)
 
-## Features
+## ✨ Features
 
-- **Dynamic Theming**: Switch between light, dark, and system-default themes.
-- **City Selection**: Choose from a curated list of major cities.
-- **Customizable Metrics**: Select from a wide range of weather parameters to display.
-- **Real-Time Data**: Fetches current weather information from the Open-Meteo API.
-- **Instant Translation**: Translates weather summaries into over 10 languages via Azure AI.
-- **Responsive Design**: A fully responsive interface that looks great on any device.
+- **🎨 Award-Winning Design**: Immersive Glassmorphic UI with dynamic, weather-reactive backgrounds (Three.js WebGL).
+- **⏱️ Precision Timeline**: Interactive scrubber to travel through time and see 48-hour forecasts instantly.
+- **📊 Advanced Visualization**: D3.js powered temperature graphs with gradient fills and interactive inspection.
+- **🌍 Global Coverage**: Real-time data from Open-Meteo API for any location on Earth.
+- **🌗 Smart Theming**: Automatically adapts to day/night cycles and weather conditions (Rain, Snow, Clear, etc.).
+- **⚡ Performance First**: Built with Vite + Vue 3 for blazing fast load times and smooth 60fps animations.
+- **📱 Fully Responsive**: Optimized experience across mobile, tablet, and desktop.
+- **♿ Accessible**: Full keyboard navigation, screen reader support, and "Terminal" high-contrast theme.
 
-## Project Structure
+## 🛠️ Tech Stack
 
-- `index.html`: The main HTML file containing the application's structure.
-- `style.css`: The stylesheet, featuring Tailwind CSS and custom properties for theming.
-- `script.js`: The core JavaScript file handling all application logic, API calls, and UI updates.
-- `api-config.js`: The configuration file for your Azure Translator API key. **This file is excluded from version control.**
-- `api-config.example.js`: An example configuration file.
-- `.gitignore`: Ensures that `api-config.js` is not committed to your repository.
-- `README.md`: This file.
+- **Framework**: [Vue 3](https://vuejs.org/) (Composition API, Script Setup)
+- **State Management**: [Pinia](https://pinia.vuejs.org/)
+- **Build Tool**: [Vite](https://vitejs.dev/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) + Custom CSS Variables
+- **Visualizations**: [D3.js](https://d3js.org/) (Charts), [Three.js](https://threejs.org/) (Backgrounds)
+- **Animations**: [GSAP](https://greensock.com/gsap/)
+- **Icons**: [Lucide Vue](https://lucide.dev/)
+- **Data Source**: [Open-Meteo API](https://open-meteo.com/)
 
-## Getting Started
+## 🚀 Getting Started
 
-To run this project locally, you will need to provide your own Azure AI Translator API key.
+### Prerequisites
 
-### 1. Get an Azure AI Translator API Key
+- Node.js 18+
+- npm or pnpm
 
-If you don't already have one, you will need to create a Translator resource in the Azure portal. Follow the official Microsoft documentation to obtain your key and region: [Create a Translator resource](https://docs.microsoft.com/en-us/azure/cognitive-services/translator/translator-how-to-signup).
+### Installation
 
-### 2. Configure Your API Key
+1.  **Clone the repository**
 
-1.  In the project's root directory, rename `api-config.example.js` to `api-config.js`.
-2.  Open the new `api-config.js` file. You will see the following line:
-    ```javascript
-    const AZURE_API_KEY = "YOUR_AZURE_API_KEY";
+    ```bash
+    git clone https://github.com/tzii/WeatherVue.git
+    cd WeatherVue
     ```
-3.  Replace `"YOUR_AZURE_API_KEY"` with your actual Azure Translator API key.
-4.  **Important**: In `script.js`, you may need to update the Azure region. Find the `translateWeather` function and modify the `Ocp-Apim-Subscription-Region` to match your resource's region if it is not `italynorth`.
 
-### 3. Run the Application
+2.  **Install dependencies**
 
-Simply open the `index.html` file in your web browser to start using WeatherVue.
+    ```bash
+    npm install
+    ```
 
-## How to Use
+3.  **Start development server**
 
-1.  **Configure Settings**: Click the menu icon in the top-right corner to open the settings drawer.
-2.  **Choose a Theme**: Select your preferred appearance (Light, Dark, or System).
-3.  **Select a City**: Pick a city from the dropdown menu.
-4.  **Select Metrics**: Check the boxes for the weather data you wish to view.
-5.  **Reveal Data**: Click the "Reveal Data" button to fetch and display the weather cards.
-6.  **Translate**: Once the data is loaded, select a target language and click "Translate" to view the translated summary.
-7.  **Clear**: Click the refresh button to reset the application.
+    ```bash
+    npm run dev
+    ```
+
+4.  **Build for production**
+    ```bash
+    npm run build
+    ```
+
+## ⚙️ Configuration
+
+Create a `.env` file in the root directory to configure optional services (like Azure Translation):
+
+```env
+VITE_AZURE_TRANSLATOR_KEY=your_key_here
+VITE_AZURE_TRANSLATOR_REGION=eastus
+```
+
+_Note: The core weather functionality works out-of-the-box without any API keys!_
+
+## 📂 Project Structure
+
+```
+src/
+├── components/        # Vue components
+│   ├── canvas/        # WebGL/Three.js background effects
+│   ├── weather/       # Weather visualization components (Graphs, Forecasts)
+│   └── ui/            # Reusable UI elements (Cards, Buttons)
+├── composables/       # Shared logic (Hooks)
+├── stores/            # Pinia state stores
+├── services/          # API integrations
+├── styles/            # Global CSS & Tailwind config
+└── utils/             # Helper functions & constants
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
