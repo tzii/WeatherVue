@@ -5,7 +5,13 @@
   <p>A next-generation weather dashboard featuring glassmorphism, WebGL visualizations, and award-winning UI/UX.</p>
 </div>
 
-![WeatherVue Preview](https://github.com/tzii/WeatherVue/raw/feature/award-winning-redesign/docs/preview.png)
+<p align="center">
+  <img src="docs/weathervue.png" alt="WeatherVue Main Interface" width="100%">
+</p>
+
+<p align="center">
+  <img src="docs/weathervue2.png" alt="WeatherVue Dark Mode & Details" width="100%">
+</p>
 
 ## ✨ Features
 
