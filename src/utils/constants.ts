@@ -31,7 +31,8 @@ export const HOURLY_PARAMS = [
   'wind_speed_10m',
   'wind_direction_10m',
   'uv_index',
-  'is_day'
+  'is_day',
+  'cloud_cover'
 ] as const
 
 export const DAILY_PARAMS = [

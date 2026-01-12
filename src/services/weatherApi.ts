@@ -1,9 +1,9 @@
-import type { 
-  WeatherData, 
-  CurrentWeather, 
-  HourlyForecast, 
+import type {
+  WeatherData,
+  CurrentWeather,
+  HourlyForecast,
   DailyForecast,
-  WeatherCode 
+  WeatherCode
 } from '@/types'
 import { API_ENDPOINTS, CURRENT_PARAMS, HOURLY_PARAMS, DAILY_PARAMS } from '@/utils/constants'
 
@@ -35,6 +35,7 @@ interface OpenMeteoHourlyResponse {
   wind_direction_10m: number[]
   uv_index: number[]
   is_day: number[]
+  cloud_cover: number[]
 }
 
 interface OpenMeteoDailyResponse {
@@ -79,13 +80,13 @@ export const fetchWeatherData = async (
   })
 
   const response = await fetch(`${API_ENDPOINTS.WEATHER}?${params}`)
-  
+
   if (!response.ok) {
     throw new Error(`Weather API error: ${response.statusText}`)
   }
-  
+
   const data: OpenMeteoResponse = await response.json()
-  
+
   return transformWeatherData(data)
 }
 
@@ -93,17 +94,17 @@ const transformWeatherData = (data: OpenMeteoResponse): WeatherData => {
   if (!data.current || !data.hourly || !data.daily) {
     throw new Error('Invalid weather data response')
   }
-  
+
   const current = transformCurrentWeather(data.current)
   const hourly = transformHourlyForecast(data.hourly)
   const daily = transformDailyForecast(data.daily)
-  
+
   // Add precipitation probability from first hour of forecast
   const firstHour = hourly[0]
   if (firstHour) {
     current.precipitationProbability = firstHour.precipitationProbability
   }
-  
+
   return {
     current,
     hourly,
@@ -143,7 +144,8 @@ const transformHourlyForecast = (data: OpenMeteoHourlyResponse): HourlyForecast[
     windSpeed: data.wind_speed_10m[i] ?? 0,
     windDirection: data.wind_direction_10m[i] ?? 0,
     uvIndex: data.uv_index[i] ?? 0,
-    isDay: (data.is_day[i] ?? 1) === 1
+    isDay: (data.is_day[i] ?? 1) === 1,
+    cloudCover: data.cloud_cover[i] ?? 0
   }))
 }
 

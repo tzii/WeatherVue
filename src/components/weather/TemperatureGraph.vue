@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, onUnmounted, computed } from 'vue'
 import * as d3 from 'd3'
-import debounce from 'lodash/debounce'
 import { useWeatherStore, useSettingsStore } from '@/stores'
 
 const weatherStore = useWeatherStore()
@@ -166,6 +165,14 @@ const drawGraph = () => {
       },
       { immediate: true }
     )
+  }
+}
+
+function debounce<T extends (...args: any[]) => void>(fn: T, delay: number) {
+  let timeout: ReturnType<typeof setTimeout>
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeout)
+    timeout = setTimeout(() => fn(...args), delay)
   }
 }
 

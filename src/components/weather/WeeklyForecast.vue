@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useWeatherStore, useSettingsStore } from '@/stores'
-import { formatTemperature, formatDate, formatTime } from '@/utils/formatters'
+import { formatTemperature, formatDate, formatTime, formatWindSpeed } from '@/utils/formatters'
 import { getWeatherIcon } from '@/utils/weatherCodes'
 import WeatherIcon from '@/components/ui/WeatherIcon.vue'
 import { Wind, Sunrise, Sunset, Droplets, Sun } from 'lucide-vue-next'

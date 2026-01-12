@@ -32,8 +32,9 @@ export const useWeatherStore = defineStore('weather', () => {
 
   const weatherType = computed<WeatherType>(() => {
     // If viewing a future day, use that day's weather code
-    if (selectedDayIndex.value > 0 && daily.value[selectedDayIndex.value]) {
-      return getWeatherType(daily.value[selectedDayIndex.value].weatherCode)
+    const futureDay = daily.value[selectedDayIndex.value]
+    if (selectedDayIndex.value > 0 && futureDay) {
+      return getWeatherType(futureDay.weatherCode)
     }
 
     if (!current.value) return 'clear'
@@ -44,7 +45,23 @@ export const useWeatherStore = defineStore('weather', () => {
   const displayWeather = computed<CurrentWeather | null>(() => {
     // If today (index 0), return current weather (or interpolated if scrubbing)
     if (selectedDayIndex.value === 0) {
-      return interpolatedWeather.value || current.value
+      if (interpolatedWeather.value && current.value) {
+        // Merge interpolated data with current data structure
+        return {
+          ...current.value,
+          temperature: interpolatedWeather.value.temperature,
+          humidity: interpolatedWeather.value.humidity,
+          precipitation: interpolatedWeather.value.precipitation,
+          precipitationProbability: interpolatedWeather.value.precipitationProbability,
+          windSpeed: interpolatedWeather.value.windSpeed,
+          uvIndex: interpolatedWeather.value.uvIndex,
+          cloudCover: interpolatedWeather.value.cloudCover,
+          isDay: interpolatedWeather.value.isDay,
+          weatherCode:
+            interpolatedWeather.value.weatherType === 'clear' ? 0 : current.value.weatherCode // Approximation
+        }
+      }
+      return current.value
     }
 
     // If future day, map DailyForecast to CurrentWeather structure
@@ -66,7 +83,8 @@ export const useWeatherStore = defineStore('weather', () => {
       windDirection: 0,
       uvIndex: day.uvIndexMax,
       isDay: true, // Always show day theme for future forecasts
-      visibility: 10 // Default good visibility
+      visibility: 10, // Default good visibility
+      precipitationProbability: day.precipitationProbabilityMax
     } as CurrentWeather
   })
 
