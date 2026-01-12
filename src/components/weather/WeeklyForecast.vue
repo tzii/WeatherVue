@@ -1,41 +1,39 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import { useWeatherStore, useSettingsStore } from "@/stores";
-import { formatTemperature, formatDate, formatTime } from "@/utils/formatters";
-import { getWeatherIcon } from "@/utils/weatherCodes";
-import WeatherIcon from "@/components/ui/WeatherIcon.vue";
-import { Wind, Sunrise, Sunset, Droplets, Sun } from "lucide-vue-next";
+import { computed, ref } from 'vue'
+import { useWeatherStore, useSettingsStore } from '@/stores'
+import { formatTemperature, formatDate, formatTime } from '@/utils/formatters'
+import { getWeatherIcon } from '@/utils/weatherCodes'
+import WeatherIcon from '@/components/ui/WeatherIcon.vue'
+import { Wind, Sunrise, Sunset, Droplets, Sun } from 'lucide-vue-next'
 
-const weatherStore = useWeatherStore();
-const settingsStore = useSettingsStore();
+const weatherStore = useWeatherStore()
+const settingsStore = useSettingsStore()
 
-const days = computed(() => weatherStore.daily);
-const expandedDay = ref<number | null>(null);
+const days = computed(() => weatherStore.daily)
+const expandedDay = ref<number | null>(null)
 
 const toggleDay = (index: number) => {
-  expandedDay.value = expandedDay.value === index ? null : index;
-};
+  expandedDay.value = expandedDay.value === index ? null : index
+  weatherStore.selectDay(index)
+}
 
 // Get temperature range for the week (for bar visualization)
 const tempRange = computed(() => {
-  if (days.value.length === 0) return { min: 0, max: 30 };
+  if (days.value.length === 0) return { min: 0, max: 30 }
 
-  const allTemps = days.value.flatMap((d) => [
-    d.temperatureMin,
-    d.temperatureMax,
-  ]);
+  const allTemps = days.value.flatMap(d => [d.temperatureMin, d.temperatureMax])
   return {
     min: Math.min(...allTemps),
-    max: Math.max(...allTemps),
-  };
-});
+    max: Math.max(...allTemps)
+  }
+})
 
 // Calculate bar position for a temperature
 const getTempPosition = (temp: number) => {
-  const { min, max } = tempRange.value;
-  const range = max - min || 1;
-  return ((temp - min) / range) * 100;
-};
+  const { min, max } = tempRange.value
+  const range = max - min || 1
+  return ((temp - min) / range) * 100
+}
 </script>
 
 <template>
@@ -64,23 +62,17 @@ const getTempPosition = (temp: number) => {
         >
           <!-- Day name -->
           <div class="day-name">
-            {{ index === 0 ? "Today" : formatDate(day.date, "short") }}
+            {{ index === 0 ? 'Today' : formatDate(day.date, 'short') }}
           </div>
 
           <!-- Weather icon -->
           <div class="day-icon">
-            <WeatherIcon
-              :name="getWeatherIcon(day.weatherCode, true)"
-              class="w-6 h-6"
-            />
+            <WeatherIcon :name="getWeatherIcon(day.weatherCode, true)" class="w-6 h-6" />
           </div>
 
           <!-- Precipitation probability -->
           <div class="day-precip">
-            <span
-              v-if="day.precipitationProbabilityMax > 0"
-              class="text-blue-400"
-            >
+            <span v-if="day.precipitationProbabilityMax > 0" class="text-blue-400">
               {{ day.precipitationProbabilityMax }}%
             </span>
           </div>
@@ -89,13 +81,7 @@ const getTempPosition = (temp: number) => {
           <div class="day-temp-bar">
             <!-- Min temp -->
             <span class="temp-min">
-              {{
-                formatTemperature(
-                  day.temperatureMin,
-                  settingsStore.temperatureUnit,
-                  false,
-                )
-              }}°
+              {{ formatTemperature(day.temperatureMin, settingsStore.temperatureUnit, false) }}°
             </span>
 
             <!-- Bar -->
@@ -104,20 +90,14 @@ const getTempPosition = (temp: number) => {
                 class="bar"
                 :style="{
                   left: `${getTempPosition(day.temperatureMin)}%`,
-                  right: `${100 - getTempPosition(day.temperatureMax)}%`,
+                  right: `${100 - getTempPosition(day.temperatureMax)}%`
                 }"
               />
             </div>
 
             <!-- Max temp -->
             <span class="temp-max">
-              {{
-                formatTemperature(
-                  day.temperatureMax,
-                  settingsStore.temperatureUnit,
-                  false,
-                )
-              }}°
+              {{ formatTemperature(day.temperatureMax, settingsStore.temperatureUnit, false) }}°
             </span>
           </div>
         </button>
@@ -129,45 +109,37 @@ const getTempPosition = (temp: number) => {
               <Sunrise class="w-4 h-4" />
               <span
                 >Sunrise:
-                <span class="text-primary font-mono">{{
-                  formatTime(day.sunrise)
-                }}</span></span
+                <span class="text-primary font-mono">{{ formatTime(day.sunrise) }}</span></span
               >
             </div>
             <div class="flex items-center gap-2 text-muted">
               <Sunset class="w-4 h-4" />
               <span
                 >Sunset:
-                <span class="text-primary font-mono">{{
-                  formatTime(day.sunset)
-                }}</span></span
+                <span class="text-primary font-mono">{{ formatTime(day.sunset) }}</span></span
               >
             </div>
             <div class="flex items-center gap-2 text-muted">
               <Wind class="w-4 h-4" />
               <span
                 >Max Wind:
-                <span class="text-primary font-mono"
-                  >{{ Math.round(day.windSpeedMax) }} km/h</span
-                ></span
+                <span class="text-primary font-mono">{{
+                  formatWindSpeed(day.windSpeedMax, settingsStore.speedUnit)
+                }}</span></span
               >
             </div>
             <div class="flex items-center gap-2 text-muted">
               <Droplets class="w-4 h-4" />
               <span
                 >Precip:
-                <span class="text-primary font-mono"
-                  >{{ day.precipitationSum }} mm</span
-                ></span
+                <span class="text-primary font-mono">{{ day.precipitationSum }} mm</span></span
               >
             </div>
             <div class="flex items-center gap-2 text-muted">
               <Sun class="w-4 h-4" />
               <span
                 >UV Max:
-                <span class="text-primary font-mono">{{
-                  Math.round(day.uvIndexMax)
-                }}</span></span
+                <span class="text-primary font-mono">{{ Math.round(day.uvIndexMax) }}</span></span
               >
             </div>
           </div>
@@ -218,7 +190,7 @@ const getTempPosition = (temp: number) => {
 
 .temp-min,
 .temp-max {
-  font-family: theme("fontFamily.display");
+  font-family: theme('fontFamily.display');
   font-size: 0.875rem;
   font-weight: 500;
   width: 32px;

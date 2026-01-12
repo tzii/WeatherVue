@@ -2,7 +2,7 @@ import { ref, watch, type Ref } from 'vue'
 import { useWeatherStore } from '@/stores/weatherStore'
 import { fetchWeatherData } from '@/services/weatherApi'
 import { cache } from '@/services/cache'
-import { CACHE_TTL } from '@/utils/constants'
+import { CACHE_TTL, RETRY_CONFIG } from '@/utils/constants'
 import type { Location, WeatherData } from '@/types'
 
 export const useWeather = (location: Ref<Location | null>) => {
@@ -10,15 +10,13 @@ export const useWeather = (location: Ref<Location | null>) => {
   const lastFetchTime = ref<number>(0)
   const retryCount = ref(0)
   const isRetrying = ref(false)
-  const MAX_RETRIES = 3
-  const BASE_DELAY = 1000
 
   const refreshWeather = async (force = false) => {
     if (!location.value) return
 
     const { latitude, longitude } = location.value
     const cacheKey = cache.weatherKey(latitude, longitude)
-    
+
     // Check if we need to fetch
     if (!force) {
       const cachedData = cache.get<WeatherData>(cacheKey)
@@ -43,20 +41,20 @@ export const useWeather = (location: Ref<Location | null>) => {
   }
 
   const retryWithBackoff = async () => {
-    if (!location.value || retryCount.value >= MAX_RETRIES) return
-    
+    if (!location.value || retryCount.value >= RETRY_CONFIG.maxRetries) return
+
     isRetrying.value = true
-    const delay = BASE_DELAY * Math.pow(2, retryCount.value)
-    
+    const delay = RETRY_CONFIG.baseDelay * Math.pow(2, retryCount.value)
+
     await new Promise(resolve => setTimeout(resolve, delay))
     retryCount.value++
-    
+
     try {
       await refreshWeather(true)
       isRetrying.value = false
     } catch {
       isRetrying.value = false
-      if (retryCount.value < MAX_RETRIES) {
+      if (retryCount.value < RETRY_CONFIG.maxRetries) {
         await retryWithBackoff()
       }
     }
@@ -68,13 +66,14 @@ export const useWeather = (location: Ref<Location | null>) => {
 
     const { latitude, longitude } = location.value
     const cacheKey = cache.weatherKey(latitude, longitude)
-    
+
     const cachedData = cache.get<WeatherData>(cacheKey)
     if (cachedData) {
       store.setWeatherData(cachedData)
-      
-      // If data is older than 5 minutes, revalidate in background
-      const isStale = Date.now() - new Date(cachedData.lastUpdated).getTime() > 5 * 60 * 1000
+
+      // If data is older than threshold, revalidate in background
+      const isStale =
+        Date.now() - new Date(cachedData.lastUpdated).getTime() > RETRY_CONFIG.staleThreshold
       if (isStale) {
         // Background fetch
         fetchWeatherData(latitude, longitude)
@@ -91,11 +90,15 @@ export const useWeather = (location: Ref<Location | null>) => {
   }
 
   // Watch for location changes
-  watch(() => location.value, (newLoc) => {
-    if (newLoc) {
-      getSwrWeather()
-    }
-  }, { deep: true })
+  watch(
+    () => location.value,
+    newLoc => {
+      if (newLoc) {
+        getSwrWeather()
+      }
+    },
+    { deep: true }
+  )
 
   return {
     refreshWeather,

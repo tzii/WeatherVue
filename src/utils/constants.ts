@@ -105,9 +105,16 @@ export const LANGUAGES = {
 
 // Cache TTLs (ms)
 export const CACHE_TTL = {
-  weather: 5 * 60 * 1000,     // 5 minutes
-  geocoding: 24 * 60 * 60 * 1000,  // 24 hours
+  weather: 5 * 60 * 1000, // 5 minutes
+  geocoding: 24 * 60 * 60 * 1000, // 24 hours
   settings: Infinity
+} as const
+
+// Network Retries
+export const RETRY_CONFIG = {
+  maxRetries: 3,
+  baseDelay: 1000,
+  staleThreshold: 5 * 60 * 1000
 } as const
 
 // Haptic patterns

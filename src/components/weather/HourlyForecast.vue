@@ -12,11 +12,21 @@ const scrollContainer = ref<HTMLElement | null>(null)
 
 // Get next 24 hours
 const hours = computed(() => {
-  return weatherStore.hourly.slice(0, 24)
+  const selectedIndex = weatherStore.selectedDayIndex
+
+  // We only have 48 hours of data, covering today (index 0) and tomorrow (index 1)
+  if (selectedIndex > 1) return []
+
+  const selectedDate = weatherStore.daily[selectedIndex]?.date
+  if (!selectedDate) return []
+
+  return weatherStore.hourly.filter(h => h.time.startsWith(selectedDate))
 })
 
-// Find current hour index
+// Find current hour index (only relevant for today)
 const currentHourIndex = computed(() => {
+  if (weatherStore.selectedDayIndex !== 0) return -1
+
   const now = new Date()
   return hours.value.findIndex(h => {
     const hourTime = new Date(h.time)
@@ -26,21 +36,23 @@ const currentHourIndex = computed(() => {
 </script>
 
 <template>
-  <section 
-    class="hourly-forecast"
-    aria-labelledby="hourly-heading"
-  >
-    <h3 
+  <section class="hourly-forecast" aria-labelledby="hourly-heading">
+    <h3
       id="hourly-heading"
       class="text-xs font-bold uppercase tracking-[0.2em] mb-4"
       style="color: var(--accent)"
     >
-      Hourly Forecast
+      {{ weatherStore.selectedDayIndex === 0 ? 'Hourly Forecast' : '24-Hour Forecast' }}
     </h3>
-    
-    <div 
+
+    <div v-if="hours.length === 0" class="text-center py-8 text-muted text-sm">
+      Hourly data not available for this date
+    </div>
+
+    <div
+      v-else
       ref="scrollContainer"
-      class="flex gap-3 overflow-x-auto pb-4 -mx-4 px-4 scroll-smooth snap-x snap-mandatory"
+      class="flex gap-3 overflow-x-auto pb-4 -mx-4 px-4 scroll-smooth snap-x snap-mandatory mask-scroll"
       role="list"
       aria-label="24-hour forecast"
     >
@@ -48,7 +60,7 @@ const currentHourIndex = computed(() => {
         v-for="(hour, index) in hours"
         :key="hour.time"
         class="hour-card flex-shrink-0 snap-start"
-        :class="{ 'current': index === currentHourIndex }"
+        :class="{ current: index === currentHourIndex }"
         role="listitem"
         :aria-current="index === currentHourIndex ? 'time' : undefined"
       >
@@ -56,23 +68,17 @@ const currentHourIndex = computed(() => {
         <span class="time">
           {{ index === currentHourIndex ? 'Now' : formatTime(hour.time, settingsStore.use24Hour) }}
         </span>
-        
+
         <!-- Icon -->
-        <WeatherIcon 
-          :name="getWeatherIcon(hour.weatherCode, hour.isDay)"
-          class="w-8 h-8 my-3"
-        />
-        
+        <WeatherIcon :name="getWeatherIcon(hour.weatherCode, hour.isDay)" class="w-8 h-8 my-3" />
+
         <!-- Temperature -->
         <span class="temp">
           {{ formatTemperature(hour.temperature, settingsStore.temperatureUnit, false) }}°
         </span>
-        
+
         <!-- Precipitation -->
-        <span 
-          v-if="hour.precipitationProbability > 0"
-          class="precip"
-        >
+        <span v-if="hour.precipitationProbability > 0" class="precip">
           {{ hour.precipitationProbability }}%
         </span>
       </div>
@@ -88,6 +94,7 @@ const currentHourIndex = computed(() => {
   padding: 1rem;
   min-width: 80px;
   border: 1px solid var(--border-default);
+  border-radius: 0.5rem;
   background: var(--bg-glass);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -139,5 +146,10 @@ const currentHourIndex = computed(() => {
 
 .overflow-x-auto::-webkit-scrollbar {
   display: none;
+}
+
+.mask-scroll {
+  mask-image: linear-gradient(to right, black calc(100% - 40px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black calc(100% - 40px), transparent 100%);
 }
 </style>
